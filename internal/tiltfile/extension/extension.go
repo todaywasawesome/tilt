@@ -6,6 +6,7 @@ package extension
 
 import (
 	"context"
+	"os"
 	"strings"
 
 	"go.starlark.net/starlark"
@@ -44,9 +45,9 @@ func (e *Extension) LocalPath(t *starlark.Thread, arg string) (string, error) {
 	}
 
 	moduleName := strings.TrimPrefix(arg, extensionPrefix)
+	// If the module can't be found we fetch it below
 	localPath, err := e.store.ModulePath(e.ctx, moduleName)
-	// TODO(dmiller) check os.IsNotExistErr?
-	if err != nil {
+	if err != nil && !os.IsNotExist(err) {
 		return "", err
 	}
 	if localPath != "" {
